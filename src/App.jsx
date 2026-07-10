@@ -1,69 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
 
-  // Stores what the user is typing
-  const [task, setTask] = useState("");
+    // React state to store students
+    const [students, setStudents] = useState([]);
 
-  // Stores all the todos
-  const [todos, setTodos] = useState([]);
+    useEffect(() => {
 
-  // Function to add a new todo
-  function addTodo() {
+        // Step 1: fetch() sends HTTP request
+        // It immediately returns a Promise
+        fetch("http://localhost:8080/students")
 
-    // Prevent empty tasks
-    if (task.trim() === "") {
-      return;
-    }
+            // Step 2:
+            // .then() registers this callback with the Promise.
+            // When the Promise resolves,
+            // Promise automatically calls this callback.
+            .then(response => {
 
-    // Add new task to the array
-    setTodos([...todos, task]);
+                console.log("Response received");
 
-    // Clear the input box
-    setTask("");
-  }
+                // response is an HTTP Response object
+                return response.json();
+            })
 
-  // Function to delete a todo
-  function deleteTodo(index) {
+            // Step 3:
+            // response.json() also returns a Promise.
+            // Another callback is registered.
+            .then(data => {
 
-    const updatedTodos = todos.filter((_, i) => i !== index);
+                console.log("Actual JSON Data");
 
-    setTodos(updatedTodos);
-  }
+                console.log(data);
 
-  return (
-    <>
-      <h1>Todo App</h1>
+                // Store data in React state
+                setStudents(data);
 
-      <input
-        type="text"
-        placeholder="Enter a task..."
-        value={task}
-        onChange={(e) => setTask(e.target.value)}
-      />
+            })
 
-      <button onClick={addTodo}>
-        Add
-      </button>
+            // Step 4:
+            // If any Promise fails,
+            // this callback is executed.
+            .catch(error => {
 
-      <hr />
+                console.log(error);
 
-      <ul>
-        {todos.map((todo, index) => (
-          <li key={index}>
+            });
 
-            {todo}
+    }, []);
 
-            <button onClick={() => deleteTodo(index)}>
-              Delete
-            </button>
+    return (
 
-          </li>
-        ))}
-      </ul>
+        <>
+            <h1>Student List</h1>
 
-    </>
-  );
+            <ul>
+
+                {
+                    students.map(student => (
+
+                        <li key={student.id}>
+
+                            {student.id} - {student.name}
+
+                        </li>
+
+                    ))
+                }
+
+            </ul>
+
+        </>
+
+    );
+
 }
 
 export default App;
